@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# a script to to display list of currently runnin processes
+# must display all process for users without a TTY 
+# display a user-oriented format
+
+ps -a -x -u -f

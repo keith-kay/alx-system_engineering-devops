@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# script to display the PID, along with the word bash
+# cannot use p s
+
+pgrep -1 bash
