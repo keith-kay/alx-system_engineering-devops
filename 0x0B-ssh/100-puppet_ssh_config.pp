@@ -10,4 +10,4 @@ content =>"
 	host*
 	IdentityFile /root/alx-system_engineering-devops/0x0B-ssh/.ssh/school
 	PasswordAuthentication no
-}
+"}
