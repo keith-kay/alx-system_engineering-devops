@@ -1,0 +1,39 @@
+Web Infrastructure Design
+
+   1. User types www.foobar.com in the browser.
+
+   2. DNS resolution:
+
+    The domain name www.foobar.com is resolved by DNS.
+
+    The www is a DNS A record that points to server IP: 8.8.8.8.
+
+   3. HTTP/HTTPS request:
+
+    The browser sends a request to 8.8.8.8 via HTTP/HTTPS over TCP/IP.
+
+    4. Nginx Web Server (on the server):
+
+    The web server (Nginx) listens on port 80 (HTTP) or 443 (HTTPS).
+
+    It forwards the request to the application server.
+
+    5. Application Server:
+
+    This runs the backend code (e.g. Python, PHP, Node.js).
+
+    It processes the request (like fetching user profiles, handling forms, etc.).
+
+    6. Database (MySQL):
+
+    The application server communicates with MySQL database to retrieve or store data.
+
+    7. Response:
+
+    The application server sends the processed response (like HTML, JSON) back to Nginx.
+
+    Nginx sends it back to the user’s browser.
+
+    User’s browser displays the website.
+
+    ![alt text](<Drawing 1.png>)
