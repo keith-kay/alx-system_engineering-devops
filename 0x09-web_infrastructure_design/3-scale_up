@@ -1,0 +1,51 @@
+High-Level Infrastructure Overview
+This infrastructure includes:
+4 total servers:
+1 Web Server (Nginx)
+1 Application Server
+1 Database Server (MySQL/Postgres)
+1 additional server acting as a second load balancer
+2 Load Balancers (HAProxy) configured in a cluster (Active-Passive)
+This design splits each major component of the stack to improve performance, security, and scalability.
+Component Explanations
+1. Web Server (Nginx)
+Serves static assets like HTML, CSS, JavaScript, images.
+Forwards dynamic requests to the application server.
+Reason for separation: reduces load on the application server, improves static file performance, and
+makes caching more efficient.
+2. Application Server
+Runs the business logic, frameworks, and server-side code (Python, PHP, Node.js, etc.).
+Connects to the database to perform queries.
+Reason for separation: isolates application logic, enhances security, and allows separate scaling of
+dynamic workloads.
+3. Database Server
+Dedicated to storing and managing all application data.
+Typically MySQL or Postgres in production setups.
+Reason for separation: protects critical data, supports better database tuning, and isolates heavy
+data queries.
+4. Load Balancers (HAProxy in cluster mode)
+Two HAProxy nodes configured with keepalived or VRRP for redundancy.
+One acts as the active load balancer, and the other as a passive standby.
+If the active fails, the passive takes over seamlessly.
+Reason for addition: removes a single point of failure at the load balancing layer
+
+Why Split the Components?
+Better fault isolation: failure of one layer does not break the entire stack.
+Easier to scale each component independently.
+Easier to secure (firewall rules specific to each role).
+Performance tuning is simpler (e.g., caching on the web server vs. optimizing query indexes on the
+database).
+Load Balancer Cluster Details
+Algorithm: usually round-robin or least-connections.
+Cluster mode ensures one HAProxy is active while the other is on standby.
+Provides high availability in case of failure.
+Issues to Consider
+If the database server goes down, no reads/writes are possible.
+If both HAProxy nodes are misconfigured, the site can become unavailable.
+You still need to monitor the health of each server and the load balancer cluster.
+Summary: Application Server vs Web Server
+Component Purpose
+Web Server Serves static files and forwards dynamic requests
+Application Server Runs the application code and business logic
+Database Server Stores and manages data
+Load Balancers Distribute traffic, maintain redundancy, and improve uptime
