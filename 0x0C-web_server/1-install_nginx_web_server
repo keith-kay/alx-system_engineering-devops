@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# Bash script to install nginx on web-01
+# Bash script that Install nginx on your web-01 server
 
-set -e  # Exit if any command fails
+# Exit on error
+set -e
 
-# Make sure the script is run as root
+# Ensure running as root
 if [ "$EUID" -ne 0 ]; then
   echo "Please run as root"
   exit 1
@@ -12,9 +13,10 @@ fi
 apt-get update -y
 apt-get install nginx -y
 
-# Set up the web root with "Hello World!"
+# Ensure web root exists
 mkdir -p /var/www/html
+
 echo "Hello World!" > /var/www/html/index.html
 
-# Restart nginx using service command
+# Restart nginx to ensure new index is served
 service nginx restart
