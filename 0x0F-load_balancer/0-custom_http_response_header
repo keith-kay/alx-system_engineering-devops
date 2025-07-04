@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Bash script to install nginx and configure custom HTTP response header
+
+set -e  # Exit on any error
+
+# Ensure running as root
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run as root"
+  exit 1
+fi
+
+# Install nginx
+apt-get update -y
+apt-get install nginx -y
+
+# Ensure web root exists
+mkdir -p /var/www/html
+
+# Provide simple index page
+echo "Hello World!" > /var/www/html/index.html
+
+# Add custom header to Nginx default config
+# note: ignore SC2154 because shellcheck does not know $hostname is nginx variable
+sed -i '/server_name _;/a \        add_header X-Served-By $hostname;' /etc/nginx/sites-available/default
+
+# Restart nginx using service
+service nginx restart
