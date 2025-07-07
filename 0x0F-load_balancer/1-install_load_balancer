@@ -1,66 +1,18 @@
 #!/usr/bin/env bash
-# 1-install_load_balancer
-# Installs and configures HAProxy to load balance between web-01 and web-02 using roundrobin
-# shellcheck disable=SC2154
+# install and configures HAproxy on the server
+# to load balance between two servers
 
-# Install HAProxy
-sudo apt-get update
-sudo apt-get install -y haproxy
-
-# Enable HAProxy to start on boot
-sudo systemctl enable haproxy
-
-# Backup the original config
-sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
-
-# Configure HAProxy
-sudo bash -c 'cat > /etc/haproxy/haproxy.cfg' <<EOF
-global
-    log /dev/log    local0
-    log /dev/log    local1 notice
-    chroot /var/lib/haproxy
-    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
-    stats timeout 30s
-    user haproxy
-    group haproxy
-    daemon
-    ca-base /etc/ssl/certs
-    crt-base /etc/ssl/private
-    ssl-default-bind-ciphers PROFILE=SYSTEM
-    ssl-default-server-ciphers PROFILE=SYSTEM
-
-defaults
-    log     global
-    mode    http
-    option  httplog
-    option  dontlognull
-    timeout connect 5000
-    timeout client  50000
-    timeout server  50000
-    errorfile 400 /etc/haproxy/errors/400.http
-    errorfile 403 /etc/haproxy/errors/403.http
-    errorfile 408 /etc/haproxy/errors/408.http
-    errorfile 500 /etc/haproxy/errors/500.http
-    errorfile 502 /etc/haproxy/errors/502.http
-    errorfile 503 /etc/haproxy/errors/503.http
-    errorfile 504 /etc/haproxy/errors/504.http
-
-frontend http_front
+sudo apt-get -y update
+sudo apt -y install haproxy
+echo "
+frontend node-http
     bind *:80
-    default_backend http_back
-
-backend http_back
-    balance roundrobin
-    server web-01 [STUDENT_ID]-web-01:80 check
-    server web-02 [STUDENT_ID]-web-02:80 check
-
-listen stats
-    bind *:8080
     mode http
-    stats enable
-    stats uri /haproxy?stats
-    stats refresh 10s
-EOF
-
-# Restart HAProxy to apply changes
-sudo systemctl restart haproxy
+    default_backend the_backend
+backend the_backend
+    balance roundrobin
+    option forwardfor
+    server 22691-web-01 3.239.87.85:80 check
+    server 22691-web-02 44.200.87.28:80 check
+" | sudo tee -a /etc/haproxy/haproxy.cfg > /dev/null
+service haproxy restart
