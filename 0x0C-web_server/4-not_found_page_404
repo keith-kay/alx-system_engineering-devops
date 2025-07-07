@@ -1,28 +1,32 @@
 #!/usr/bin/env bash
-# Bash script to configure Nginx with a custom 404 page containing "Ceci n'est pas une page"
+# Configures my nginx server to have a custom 404 page
 
-set -e
+sudo apt-get update && sudo apt-get install nginx -y
 
-# Ensure running as root
-if [ "$EUID" -ne 0 ]; then
-  echo "Please run as root"
-  exit 1
-fi
+sudo chown -R "$USER":"$USER" /var/www/html/index.nginx-debian.html
+sudo chown -R "$USER":"$USER" /etc/nginx/sites-available/default
+sudo chown -R "$USER":"$USER" /var/www/html
 
-apt-get update -y
-apt-get install -y nginx
+echo "Hello World!" > /var/www/html/index.nginx-debian.html
+echo "Ceci n'est pas une page" > /var/www/html/404.html
 
-# Ensure web root exists
-mkdir -p /var/www/html
+NotFound=\
+"server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+	root /var/www/html;
+	index index.html index.htm index.nginx-debian.html;
+	server_name _;
+	location /redirect_me {
+		return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+	}
+ 	error_page 404 /404.html;
+    	location /404 {
+      		root /var/www/html;
+      		internal;
+    	}
+}"
 
-echo "Hello World!" > /var/www/html/index.html
+echo -e "$NotFound" > /etc/nginx/sites-available/default
 
-echo "Ceci n'est pas une page" > /usr/share/nginx/html/page_error_404.html
-
-CONFIG_FILE="/etc/nginx/sites-available/default"
-# Add custom 404 error page config if not present
-if ! grep -q "page_error_404.html" "$CONFIG_FILE"; then
-  sed -i "/server_name _;/a \\n    error_page 404 /page_error_404.html;\n    location = /page_error_404.html {\n        root /usr/share/nginx/html;\n        internal;\n    }\n" "$CONFIG_FILE"
-fi
-
-service nginx restart
+sudo service nginx restart
