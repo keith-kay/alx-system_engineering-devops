@@ -6,18 +6,20 @@ subdomains=( "www" "lb-01" "web-01" "web-02" )
 domain="$1"
 sub="$2"
 
-brown="" # color codes can be added if needed
-blue=""
-reset=""
-
+# Function to look up subdomain DNS info
 dig_cmd () {
-    sub="$2"
-    INFO="$(dig "$sub.$domain" | grep -A1 'ANSWER SECTION:' | awk 'NR==2')"
+    local domain_name=$1
+    local sub_name=$2
+    local full="${sub_name}.${domain_name}"
+
+    # Extract A record details using dig + awk
+    INFO=$(dig "$full" | grep -A1 'ANSWER SECTION:' | awk 'NR==2')
     IP=$(echo "$INFO" | awk '{print $5}')
     RECORD=$(echo "$INFO" | awk '{print $4}')
-    echo "The subdomain $sub is a $RECORD record and points to $IP"
+    echo "The subdomain $sub_name is a $RECORD record and points to $IP"
 }
 
+# Check if only domain is passed
 if [ $# -eq 1 ]; then
     for subs in "${subdomains[@]}"; do
         dig_cmd "$domain" "$subs"
